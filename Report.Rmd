@@ -1,0 +1,59 @@
+---
+title: "Report"
+author: "Ouassim Kiassa | Jonas Schindler"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+```
+ToDo: Create for numeric: -> Oussami
+Create for categorical: ChiSquare Test -> Jonas
+
+## introduction
+Introduction
+Some text
+-> Jonas
+
+## exploratory-data-analysis
+Exploratory Data Analysis 
+-> Oussami
+
+## research-question-1
+Research Question 1:
+Older persons are more likely to have started smoking at a younger age -> Inference: Disproven with positive correlation
+-> Jonas
+
+## research-question-2
+Research Question 2:
+There is no impact of ediuation level on smoking -> Only data science students in theri masters
+-> Oussami
+
+## research-question-3
+Research Question 3:
+Gendser does no ingluence smoked amount -> Inference : (-1.9391250071966484, 0.0570511175162205) 
+-> Jonas
+
+
+## inference
+Some text
+### research-question-1
+-> Jonas
+### research-question-2
+-> Oussami
+### research-question-3
+-> Jonas
+
+## conclusion
+Some text
+-> Jonas
+
+## reference
+Some text (Functions Used)
+-> OUssami
