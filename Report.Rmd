@@ -6,54 +6,129 @@ output:
   pdf_document:
     toc: true
     toc_depth: 2
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(dplyr)
+library(stringr)
+library(tidyr)
 ```
-ToDo: Create for numeric: -> Oussami
-Create for categorical: ChiSquare Test -> Jonas
+
+ToDo: Create for numeric: -\> Oussami Create for categorical: ChiSquare
+Test -\> Jonas
 
 ## introduction
-Introduction
-Some text
--> Jonas
+
+Introduction Some text -\> Jonas
+
+```{r}
+# Load and preprocess the data
+df <- read.csv("group13.csv")
+colnames(df) <- c("Gender", "Age", "Program", "Smoke", "Age_Started_Smoking", "Amount")
+
+# Define the function to parse the program
+parse_program <- function(program) {
+  # Normalize case for consistent processing
+  program_lower <- tolower(program)
+  
+  # Find degree and normalize
+  if (str_detect(program_lower, "\\b(bsc|bachelor|bachelorstudium)\\b")) {
+    degree <- "Bachelor"
+  } else if (str_detect(program_lower, "\\b(msc|master)\\b") | str_detect(program_lower, "data science")) {
+    degree <- "Master"
+  } else {
+    print(paste("Unknown Degree:", program))
+    degree <- "Unknown"
+  }
+  
+  subject <- program_lower %>%
+    str_replace_all("/msc|/bsc|/bachelor|/master|tu wien|msc|bsc|bachelor|master|\\s+at\\s+.*", "") %>%
+    str_trim() %>%
+    str_replace_all("^[/\\s]+|[/\\s]+$", "") %>%
+    str_to_title()
+  
+
+  if (str_detect(subject, "data science") | str_detect(subject, "Data Science") | str_detect(subject, "Datascience")) {
+    subject <- "Data Science"
+  } else if (str_detect(subject, "Mathematics")) {
+    subject <- "Mathematics"
+  } else if (str_detect(subject, "Medical Informatiocs")) {
+      subject <- "Medical Informatics"
+  } else if (str_detect(subject, "Studium Software & Information Engineering")) {
+    subject <- "Software & Information Engineering"
+  } else if (str_detect(subject, "Business Informatics")) {
+    subject <- "Business Informatics"
+  }
+  else {
+    print(paste("Unknown Subject:", program))
+    subject <- "Unknown"
+  }
+  
+  return(c(Degree = degree, Subject = subject))
+}
+
+```
+
+```{r}
+print((df["Program"]))
+# Apply the function and assign new columns
+parsed_programs <- t(apply(df["Program"], 1, parse_program))
+print((df["Program"]))
+df <- cbind(df, as.data.frame(parsed_programs, stringsAsFactors = FALSE))
+
+# Define the function to map gender
+map_gender <- function(gender) {
+  case_when(
+    gender == "female" ~ "Female",
+    gender == "male" ~ "Male",
+    gender == "no answer" ~ "Unknown",
+    gender == "diverse" ~ "Diverse",
+    TRUE ~ "Unknown"
+  )
+}
+
+df$Gender <- sapply(df$Gender, map_gender)
+df$Smoke <- sapply(df$Smoke, function(x) ifelse(tolower(x) == "yes", TRUE, FALSE))
+
+# Show the first few rows of the DataFrame to confirm changes
+head(df)
+
+```
 
 ## exploratory-data-analysis
-Exploratory Data Analysis 
--> Oussami
+
+Exploratory Data Analysis -\> Oussami
 
 ## research-question-1
-Research Question 1:
-Older persons are more likely to have started smoking at a younger age -> Inference: Disproven with positive correlation
--> Jonas
+
+Research Question 1: Older persons are more likely to have started
+smoking at a younger age -\> Inference: Disproven with positive
+correlation -\> Jonas
 
 ## research-question-2
-Research Question 2:
-There is no impact of ediuation level on smoking -> Only data science students in theri masters
--> Oussami
+
+Research Question 2: There is no impact of ediuation level on smoking
+-\> Only data science students in theri masters -\> Oussami
 
 ## research-question-3
-Research Question 3:
-Gendser does no ingluence smoked amount -> Inference : (-1.9391250071966484, 0.0570511175162205) 
--> Jonas
 
+Research Question 3: Gendser does no ingluence smoked amount -\>
+Inference : (-1.9391250071966484, 0.0570511175162205) -\> Jonas
 
 ## inference
-Some text
-### research-question-1
--> Jonas
-### research-question-2
--> Oussami
-### research-question-3
--> Jonas
+
+Some text \### research-question-1 -\> Jonas \### research-question-2
+-\> Oussami \### research-question-3 -\> Jonas
 
 ## conclusion
-Some text
--> Jonas
+
+Some text -\> Jonas
 
 ## reference
-Some text (Functions Used)
--> OUssami
+
+Some text (Functions Used) -\> OUssami
