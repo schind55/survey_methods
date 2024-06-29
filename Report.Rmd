@@ -17,14 +17,18 @@ library(ggplot2)
 library(dplyr)
 library(stringr)
 library(tidyr)
+library(gt)
 ```
 
 ToDo: Create for numeric: -\> Oussami Create for categorical: ChiSquare
 Test -\> Jonas
 
-## introduction
+## Introduction
 
-Introduction Some text -\> Jonas
+Our research topic is smoking behavior of students. We asked three
+questions related to the age the person started smoking, how many
+cigarettes they smoke per day and what they are currently studying at TU
+Wien.
 
 ```{r}
 # Load and preprocess the data
@@ -75,10 +79,8 @@ parse_program <- function(program) {
 ```
 
 ```{r}
-print((df["Program"]))
 # Apply the function and assign new columns
 parsed_programs <- t(apply(df["Program"], 1, parse_program))
-print((df["Program"]))
 df <- cbind(df, as.data.frame(parsed_programs, stringsAsFactors = FALSE))
 
 # Define the function to map gender
@@ -95,40 +97,234 @@ map_gender <- function(gender) {
 df$Gender <- sapply(df$Gender, map_gender)
 df$Smoke <- sapply(df$Smoke, function(x) ifelse(tolower(x) == "yes", TRUE, FALSE))
 
-# Show the first few rows of the DataFrame to confirm changes
-head(df)
+df = subset(df, select = -c(Program) )
 
+# Show the first few rows of the DataFrame to confirm changes
+df %>%gt()
+
+```
+
+After cleaning the data we have aggregated the subjects and the study
+programm for every student, besides two which only entered TU Wien. Now
+we have a dataset with the following columns: 
+
+* Gender: The gender of the student, which can be "Male", "Female", "Unknown", or "Diverse". 
+* Age: The age of the student in years. - Smoke: A boolean value indicating whether the student smokes (TRUE) or not (FALSE). 
+* Age_Started_Smoking: The age at which the student started smoking, with 0 indicating non-smokers. 
+* Amount: The amount the student smokes per day. 
+* Degree: The highest academic degree obtained by the student, such as "Bachelor", "Master", or "Unknown". 
+* Subject: The subject area of the student's degree, including areas like "Data Science", "Software & Information Engineering", "Business Informatics", "Mathematics", "Medical Informatics", or "Unknown".
+
+```{r}
+p1 <- ggplot(df, aes(x = Age, fill = Gender)) +
+  geom_histogram(bins = 10, alpha = 0.7, position = "identity") +
+  theme_minimal() +
+  labs(title = "Age Distribution by Gender", x = "Age", y = "Count")
+
+# Plot 2: Smoking status by gender
+p2 <- ggplot(df, aes(x = Gender, fill = Smoke)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Smoking Status by Gender", x = "Gender", y = "Count")
+
+# Plot 3: Age distribution of smokers vs non-smokers
+p3 <- ggplot(df, aes(x = Age, fill = Smoke)) +
+  geom_histogram(bins = 10, alpha = 0.7, position = "identity") +
+  theme_minimal() +
+  labs(title = "Age Distribution of Smokers vs Non-Smokers", x = "Age", y = "Count")
+
+# Plot 4: Breakdown by Degree
+p4 <- ggplot(df, aes(x = Degree, fill = Gender)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Degree Breakdown by Gender", x = "Degree", y = "Count")
+
+# Plot 5: Breakdown by Subject
+p5 <- ggplot(df, aes(x = Subject, fill = Gender)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Subject Breakdown by Gender", x = "Subject", y = "Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(p1)
+print(p2)
+print(p3)
+print(p4)
+print(p5)
+
+smokers <- df %>% filter(Age_Started_Smoking != 0)
+non_smokers <- df %>% filter(Age_Started_Smoking == 0)
+
+# Some more plots for smokers and non smokers
+# Plot 6: Age distribution of smokers by gender
+p6 <- ggplot(smokers, aes(x = Age, fill = Gender)) +
+  geom_histogram(bins = 10, alpha = 0.7, position = "identity") +
+  theme_minimal() +
+  labs(title = "Age Distribution of Smokers by Gender", x = "Age", y = "Count")
+
+# Plot 7: Smoking amount distribution by gender
+p7 <- ggplot(smokers, aes(x = Amount, fill = Gender)) +
+  geom_histogram(bins = 10, alpha = 0.7, position = "identity") +
+  theme_minimal() +
+  labs(title = "Smoking Amount Distribution by Gender", x = "Amount", y = "Count")
+
+# Visualizations for Non-Smokers
+
+# Plot 8: Age distribution of non-smokers by gender
+p8 <- ggplot(non_smokers, aes(x = Age, fill = Gender)) +
+  geom_histogram(bins = 10, alpha = 0.7, position = "identity") +
+  theme_minimal() +
+  labs(title = "Age Distribution of Non-Smokers by Gender", x = "Age", y = "Count")
+
+# Plot 9: Degree distribution of non-smokers by gender
+p9 <- ggplot(non_smokers, aes(x = Degree, fill = Gender)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Degree Distribution of Non-Smokers by Gender", x = "Degree", y = "Count")
+
+print(p6)
+print(p7)
+print(p8)
+print(p9)
+
+perform_chi_square_test <- function(dataset, response_col, predictor_cols) {
+  for (predictor_col in predictor_cols) {
+    # Create contingency table
+    contingency_table <- table(dataset[[response_col]], dataset[[predictor_col]])
+    
+    # Perform chi-square test
+    chi_square_result <- chisq.test(contingency_table)
+    
+    # Print results
+    print(paste("Chi-square test for", response_col, "and", predictor_col))
+    print(chi_square_result)
+  }
+}
+
+
+# Example usage of chi-square test function
+perform_chi_square_test(df, "Smoke", c("Gender", "Degree", "Subject"))
 ```
 
 ## exploratory-data-analysis
 
 Exploratory Data Analysis -\> Oussami
 
-## research-question-1
+## Research-question-1
 
-Research Question 1: Older persons are more likely to have started
-smoking at a younger age -\> Inference: Disproven with positive
-correlation -\> Jonas
+Are older persons more likely to have started smoking at a younger age
+than younger students?
 
-## research-question-2
+## Research-question-2
 
 Research Question 2: There is no impact of ediuation level on smoking
 -\> Only data science students in theri masters -\> Oussami
 
-## research-question-3
+## Research-question-3
 
-Research Question 3: Gendser does no ingluence smoked amount -\>
-Inference : (-1.9391250071966484, 0.0570511175162205) -\> Jonas
+Is there a relationship between gender and the amount smoked?
 
-## inference
+## Inference
 
-Some text \### research-question-1 -\> Jonas \### research-question-2
--\> Oussami \### research-question-3 -\> Jonas
+Now we will address each research question.
 
-## conclusion
+### Research-question-1
+
+To address the research question, we analyzed the relationship between
+students current age and the age at which they started smoking. A
+scatter plot with a regression line shows this relationship, and the
+Pearson correlation coefficient is calculated to quantify it.
+
+```{r}
+# Scatter plot with regression line
+p1 <- ggplot(smokers, aes(x = Age, y = Age_Started_Smoking)) +
+  geom_point(aes(color = Gender)) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  theme_minimal() +
+  labs(title = "Age vs Age Started Smoking", x = "Age", y = "Age Started Smoking")
+
+# Print the plot
+print(p1)
+
+# Calculate correlation
+correlation <- cor(smokers$Age, smokers$Age_Started_Smoking)
+print(paste("Correlation between Age and Age Started Smoking:", correlation))
+
+```
+
+The correlation between the current age and the age at which individuals
+started smoking is -0.0605. This weak negative correlation shows that,
+in this dataset, there is a tendency for older individuals to have
+started smoking at a younger age. However, the correlation is very close
+to zero, indicating that the relationship is weak and not statistically
+significant. Therefore, we cannot conclusively say that older
+individuals are more likely to have started smoking at a younger age
+based on this correlation metric alone.
+
+```{r}
+perform_chi_square_test(smokers, "Age_Started_Smoking", c("Age"))
+```
+
+To further investigate the relationship between age and the age at which
+individuals started smoking, we performed a chi-square test. The test
+compared the age of individuals and the age they started smoking. The
+chi-square test returned a p-value of 0.12 with an X-squared value of
+76.375 and 63 degrees of freedom, suggesting no significant association
+between the two variables at the common significance level of 0.05.
+
+However, the warning "Chi-Quadrat-Approximation kann inkorrekt sein"
+indicates inaccuracies due to low frequencies in the contingency table.
+This warning suggests that the chi-square test results may not be
+reliable, which could be due to the sparsity of the data. This issue
+arises from the low number of smokers in the dataset.
+
+Both the correlation analysis and the chi-square test do not provide
+strong evidence to support the hypothesis that older individuals are
+more likely to have started smoking at a younger age. The weak
+correlation and potential inaccuracies in the chi-square test due to low
+frequencies imply that these results should be interpreted with caution.
+
+### Research-question-2
+
+-> Oussami
+
+### Research-question-3
+To investigate the relationship between gender and the amount smoked, we performed a chi-square test using filtered datasets where gender was specified and the amount smoked per day was known (not na). We test if there is a significant association between gender and the distribution of smoking amounts.
+We filtered the dataset to include only students with known gender and specified smoking amounts, and similarly filtered the smokers dataset to include students with known genders. This allowed us to analyze both datasets separately.
+We visualized the distribution of smoking amounts among genders using bar plots. The first plot shows the overall distribution, while the second focuses specifically on individuals who smoke.
+```{r}
+filtered_data <- df %>% filter(!(is.na(Amount)) & Gender != "Unknown")
+filtered_smokers <- smokers %>% filter(Gender != "Unknown")
+
+# Create a bar plot
+ggplot(filtered_data, aes(x = Gender, fill = factor(Amount))) +
+  geom_bar(position = "dodge") +
+  labs(x = "Gender", y = "Count", fill = "Amount") +
+  ggtitle("Distribution of Amount Smoked by Gender") +
+  theme_minimal()
+
+# Create a bar plot
+ggplot(filtered_smokers, aes(x = Gender, fill = factor(Amount))) +
+  geom_bar(position = "dodge") +
+  labs(x = "Gender", y = "Count", fill = "Amount") +
+  ggtitle("Distribution of Amount Smoked for Smokers by Gender") +
+  theme_minimal()
+
+perform_chi_square_test(filtered_data, "Amount", c("Gender"))
+perform_chi_square_test(filtered_smokers, "Amount", c("Gender"))
+```
+We conducted chi-square tests for both datasets to evaluate the association between gender and smoking amounts.
+
+* For the whole dataset, the chi-square test yielded a p-value of 4.47e-09, indicating a highly significant association between gender and the amount smoked.
+
+* For the smokers dataset, the chi-square test returned a p-value of 0.08838, suggesting no significant association between gender and the amount smoked among smokers specifically. However, the warning "Chi-Quadrat-Approximation kann inkorrekt sein" suggests caution due to potential inaccuracies from low  frequencies.
+
+Based on these findings, there is strong evidence from the general dataset that gender influences the distribution of smoking amounts. However, among individuals who smoke, the association between gender and smoking amount is not statistically significant at the significance level of 0.05, although this conclusion should be interpreted cautiously due to the warning from the chi-square test.
+
+## Conclusion
 
 Some text -\> Jonas
 
-## reference
+## Reference
 
 Some text (Functions Used) -\> OUssami
