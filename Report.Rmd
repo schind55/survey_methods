@@ -20,8 +20,6 @@ library(tidyr)
 library(gt)
 ```
 
-ToDo: Create for numeric: -\> Oussami Create for categorical: ChiSquare
-Test -\> Jonas
 
 ## Introduction
 
@@ -208,7 +206,13 @@ perform_chi_square_test(df, "Smoke", c("Gender", "Degree", "Subject"))
 
 ## exploratory-data-analysis
 
-Exploratory Data Analysis -\> Oussami
+The age distribution of the dataset reveals that the majority of participants are in their early to mid-20s, with a prominent peak observed in the age range of 22 to 25. This suggests that the primary demographic for this dataset is younger adults, with the concentration of participants diminishing as age increases. A smaller subset of older participants is also present, with the eldest individual being 57 years old. The overall distribution is right-skewed, indicating a higher prevalence of younger individuals among the participants.
+
+In addition to the age distribution, the dataset exhibits a pronounced gender imbalance, with a significant overrepresentation of male participants. This is noteworthy because males constitute the dominant group of smokers within the sample. This demographic trend is crucial for understanding the behavioral patterns observed in the data, particularly in relation to smoking habits.
+
+Moreover, the educational background of the participants predominantly indicates enrollment in master's degree programs. This is in stark contrast to the number of individuals with a bachelor's degree or those whose educational level is unspecified. The focus on master's degree students may reflect the specific population targeted by the study, which could influence the generalizability of the findings to broader educational contexts.
+
+Overall, the dataset is characterized by a young, predominantly male demographic, with most individuals pursuing advanced education at the master's level. These factors combined suggest specific trends and patterns that are important for interpreting the study's outcomes, particularly in relation to age, gender, and educational attainment.
 
 ## Research-question-1
 
@@ -217,8 +221,8 @@ than younger students?
 
 ## Research-question-2
 
-Research Question 2: There is no impact of ediuation level on smoking
--\> Only data science students in theri masters -\> Oussami
+Research Question 2: There is no impact of education level on smoking
+-\> Only data science students in there masters 
 
 ## Research-question-3
 
@@ -286,7 +290,26 @@ frequencies imply that these results should be interpreted with caution.
 
 ### Research-question-2
 
--> Oussami
+To address the research question, we analyzed the relationship between
+students current Degree and the current status of there smoking habits.
+
+
+```{r}
+smoke_vs_degree <- table(df$Smoke, df$Degree)
+
+barplot(smoke_vs_degree)
+
+## add legend to the plot
+legend("topright", legend = rownames(smoke_vs_degree), fill = c("grey", "black"))
+
+```
+The provided bar plot illustrates the distribution of participants across three educational levels: Bachelor, Master, and Unknown, with each bar segmented by boolean values (TRUE and FALSE). The x-axis represents these educational categories, while the y-axis denotes the participant count, incrementing from 0 to 70. The legend differentiates TRUE (dark shade) from FALSE (light shade). The Bachelor category shows an almost negligible count, entirely marked as FALSE. In stark contrast, the Master category stands out with the highest count, slightly over 60, predominantly categorized as TRUE, with a smaller fraction marked as FALSE. The Unknown category, slightly more populated than Bachelor, still has a low count, exclusively marked as TRUE. These observations suggest a significant focus on individuals with a Master’s degree within the dataset, this indicate a very concentrated dataset, with a majority of participants in Master’s degree.
+
+```{r}
+perform_chi_square_test(df, "Smoke", c("Degree"))
+```
+
+The chi-square test, with a p-value of 0.6169, indicates no significant association between educational levels and boolean values in this dataset. However, the results must be interpreted with caution due to the unequal distribution of participants, predominantly skewed towards those with a Master's degree. The insufficient data in the Bachelor and Unknown categories limits the ability to detect potential associations. For more conclusive results, it would be advantageous to obtain a more balanced dataset, ensuring adequate representation across all educational categories.
 
 ### Research-question-3
 To investigate the relationship between gender and the amount smoked, we performed a chi-square test using filtered datasets where gender was specified and the amount smoked per day was known (not na). We test if there is a significant association between gender and the distribution of smoking amounts.
@@ -323,8 +346,22 @@ Based on these findings, there is strong evidence from the general dataset that 
 
 ## Conclusion
 
-Some text -\> Jonas
+* Our dataset where heavily skewed towards master students, which made it hard to draw conclusions about the impact of education level on smoking habits. 
+* We found no significant association between age and the age at which individuals started smoking, suggesting that older individuals are not more likely to have started smoking at a younger age. 
+* gender influences the distribution of smoking amounts in the general dataset, but not among smokers specifically, and statistical significance was not observed in the latter case.
+* the weak correlation and potential inaccuracies in the chi-square test due to low frequencies indicate that these results should be interpreted with caution.
+
+Further comment: 
+
+We learned that we should be conscious about those potentioal bias and therefor we need to try to ask questions that are more general and not so specific to a certain group to get as much information as possible to conduct a proper surveys.
 
 ## Reference
-
-Some text (Functions Used) -\> OUssami
+***********************************************************************************************************************
+| Function/Variable       | Description                                                                               |
+|-------------------------|-------------------------------------------------------------------------------------------|
+| parse_program           | Parse program name for degree (Bachelor/Master) and subject categorization.               |
+| parsed_programs         | to apply the previous function.                                                           |
+| perform_chi_square_test | this function is used to perform a chi-square test between two columns of a dataset       |
+| ggplot                  | to create the plots                                                                       |
+| correlation             | to do pearson correlation between two columns                                             |
+***********************************************************************************************************************
